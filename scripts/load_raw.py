@@ -176,9 +176,20 @@ def main():
         with connection.cursor() as cursor:
             cursor.execute(
                 """
-                TRUNCATE TABLE
-                    raw.ptbxl_ecg_source,
-                    raw.ptbxl_scp_statement_source
+                DO $$
+                BEGIN
+                    IF to_regclass('staging.bridge_ecg_scp') IS NOT NULL THEN
+                        TRUNCATE TABLE
+                            staging.bridge_ecg_scp,
+                            raw.ptbxl_ecg_source,
+                            raw.ptbxl_scp_statement_source;
+                    ELSE
+                        TRUNCATE TABLE
+                            raw.ptbxl_ecg_source,
+                            raw.ptbxl_scp_statement_source;
+                    END IF;
+                END
+                $$;
                 """
             )
 
